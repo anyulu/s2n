@@ -294,11 +294,17 @@ int main(int argc, char **argv)
     for ( int index  = 0; index < num; index++)
     {
         if (ifPrint[index] == 1) continue;
+        if (strstr(security_policy_selection[index].version, "null") != NULL ||\
+            strstr(security_policy_selection[index].version, "test") != NULL ||\
+            strstr(security_policy_selection[index].version, "PQ") != NULL) continue;
         struct s2n_security_policy *thisPolicy = security_policy_selection[index].security_policy;
         fprintf(fp, "case \"TLS_POLICY_%s\":\n", security_policy_selection[index].version);
         ifPrint[index] = 1;
         for (int index2 = index+1; index2 < num; index2++) {
             if (security_policy_selection[index].security_policy == security_policy_selection[index2].security_policy) {
+                if (strstr(security_policy_selection[index2].version, "null") != NULL ||\
+                    strstr(security_policy_selection[index2].version, "test") != NULL ||\
+                    strstr(security_policy_selection[index2].version, "PQ") != NULL) continue;
                 fprintf(fp, "case \"TLS_POLICY_%s\":\n", security_policy_selection[index2].version);
                 ifPrint[index2] = 1;
             }
