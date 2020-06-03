@@ -284,7 +284,7 @@ char* mapToIANA (char *key) {
 int main(int argc, char **argv)
 {
     FILE *fp;
-    fp = fopen("../../../test2.java", "w");
+    fp = fopen("../../../test.java", "w");
     int num = 0;
     while (security_policy_selection[num].version != NULL) {
         num ++;
