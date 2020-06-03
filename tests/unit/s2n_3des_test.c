@@ -284,37 +284,49 @@ char* mapToIANA (char *key) {
 int main(int argc, char **argv)
 {
     FILE *fp;
-    fp = fopen("../../../test.java", "w");
-    int index = 0;
-    while (security_policy_selection[index].version != NULL)
+    fp = fopen("../../../test2.java", "w");
+    int num = 0;
+    while (security_policy_selection[num].version != NULL) {
+        num ++;
+    }
+    int ifPrint[num];
+    memset(ifPrint, 0, num*sizeof(int));
+    for ( int index  = 0; index < num; index++)
     {
+        if (ifPrint[index] == 1) continue;
         struct s2n_security_policy *thisPolicy = security_policy_selection[index].security_policy;
         fprintf(fp, "case \"TLS_POLICY_%s\":\n", security_policy_selection[index].version);
+        ifPrint[index] = 1;
+        for (int index2 = index+1; index2 < num; index2++) {
+            if (security_policy_selection[index].security_policy == security_policy_selection[index2].security_policy) {
+                fprintf(fp, "case \"TLS_POLICY_%s\":\n", security_policy_selection[index2].version);
+                ifPrint[index2] = 1;
+            }
+        }
         switch (thisPolicy->minimum_protocol_version)
         {
         case 20:
-            fprintf(fp, "\treturn new TlsPolicy(ProtocolVersion.SSLv2, asList(\n");
+            fprintf(fp, "    return new TlsPolicy(ProtocolVersion.SSLv2, asList(\n");
             break;
         case 30:
-            fprintf(fp, "\treturn new TlsPolicy(ProtocolVersion.SSLv3, asList(\n");
+            fprintf(fp, "    return new TlsPolicy(ProtocolVersion.SSLv3, asList(\n");
             break;
         case 31:
-            fprintf(fp, "\treturn new TlsPolicy(ProtocolVersion.TLSv10, asList(\n");
+            fprintf(fp, "    return new TlsPolicy(ProtocolVersion.TLSv10, asList(\n");
             break;
         case 32:
-            fprintf(fp, "\treturn new TlsPolicy(ProtocolVersion.TLSv11, asList(\n");
+            fprintf(fp, "    return new TlsPolicy(ProtocolVersion.TLSv11, asList(\n");
             break;
         case 33:
-            fprintf(fp, "\treturn new TlsPolicy(ProtocolVersion.TLSv12, asList(\n");
+            fprintf(fp, "    return new TlsPolicy(ProtocolVersion.TLSv12, asList(\n");
             break;
         }
         int lineNum = thisPolicy->cipher_preferences->count;
         for (int i = 0; i < lineNum-1; i++) {
-            fprintf(fp, "\t\t\"%s\",\n", mapToIANA(thisPolicy->cipher_preferences->suites[i]->name));
+            fprintf(fp, "        \"%s\",\n", mapToIANA(thisPolicy->cipher_preferences->suites[i]->name));
         }
-        fprintf(fp, "\t\t\"%s\"\n", mapToIANA(thisPolicy->cipher_preferences->suites[lineNum-1]->name));
-        fprintf(fp, "\t));\n");
-        index++;
+        fprintf(fp, "        \"%s\"\n", mapToIANA(thisPolicy->cipher_preferences->suites[lineNum-1]->name));
+        fprintf(fp, "    ));\n");
     }
     fclose(fp);
 
